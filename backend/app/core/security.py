@@ -17,16 +17,12 @@ bearer_scheme = HTTPBearer()
 
 
 # ─── Password ─────────────────────────────────────────────────────────────────
-def _truncate_password(password: str) -> str:
-    # bcrypt limits passwords to 72 bytes. Safely slice raw bytes.
-    return password.encode("utf-8")[:72].decode("utf-8", "ignore")
-
 def hash_password(password: str) -> str:
-    return pwd_context.hash(_truncate_password(password))
+    return pwd_context.hash(password)
 
 
 def verify_password(plain: str, hashed: str) -> bool:
-    return pwd_context.verify(_truncate_password(plain), hashed)
+    return pwd_context.verify(plain, hashed)
 
 
 # ─── JWT ──────────────────────────────────────────────────────────────────────
