@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AutismScreen AI — Early Detection Platform</title>
+  <meta name="description" content="AQ-10 based autism screening tool powered by machine learning. Fast, private, and clinically validated." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: {
+            brand: {
+              50:  '#eef4ff', 100: '#d9e7ff', 200: '#bcd4ff',
+              300: '#8eb7ff', 400: '#5a8dff', 500: '#3366ff',
+              600: '#1a44f5', 700: '#1230e0', 800: '#1429b6',
+              900: '#162a8f',
+            },
+          },
+          animation: {
+            'fade-up': 'fadeUp 0.6s ease-out both',
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4,0,0.6,1) infinite',
+          },
+          keyframes: {
+            fadeUp: { '0%': { opacity: 0, transform: 'translateY(24px)' }, '100%': { opacity: 1, transform: 'translateY(0)' } },
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .glass { background: rgba(255,255,255,0.06); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.12); }
+    .input-field { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: white; transition: all 0.2s; }
+    .input-field::placeholder { color: rgba(255,255,255,0.35); }
+    .input-field:focus { outline: none; border-color: #5a8dff; background: rgba(255,255,255,0.12); box-shadow: 0 0 0 3px rgba(90,141,255,0.2); }
+    .tab-btn.active { background: #3366ff; color: white; }
+    .tab-btn { color: rgba(255,255,255,0.55); transition: all 0.2s; }
+    .tab-btn:hover:not(.active) { color: white; background: rgba(255,255,255,0.08); }
+    .btn-primary { background: linear-gradient(135deg, #3366ff, #1a44f5); transition: all 0.2s; }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 25px rgba(51,102,255,0.4); }
+    .btn-primary:active { transform: translateY(0); }
+    .toast { position: fixed; bottom: 24px; right: 24px; z-index: 9999; transform: translateY(80px); opacity: 0; transition: all 0.35s ease; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .orb { position: absolute; border-radius: 50%; filter: blur(80px); pointer-events: none; }
+  </style>
+</head>
+<body class="h-full bg-gray-950 text-white overflow-hidden">
+
+<!-- Ambient background -->
+<div class="fixed inset-0 overflow-hidden pointer-events-none">
+  <div class="orb w-[600px] h-[600px] bg-brand-600/20 top-[-200px] left-[-100px]"></div>
+  <div class="orb w-[400px] h-[400px] bg-purple-600/15 bottom-[-100px] right-[-50px]"></div>
+  <div class="orb w-[300px] h-[300px] bg-cyan-500/10 top-[40%] right-[20%]"></div>
+</div>
+
+<div class="relative h-full flex items-center justify-center px-4">
+  <div class="w-full max-w-md animate-fade-up">
+
+    <!-- Logo / Brand -->
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-brand-600 mb-4 shadow-lg shadow-brand-600/30">
+        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+        </svg>
+      </div>
+      <h1 class="text-3xl font-bold tracking-tight">AutismScreen <span class="text-brand-400">AI</span></h1>
+      <p class="text-white/50 text-sm mt-1">AQ-10 Early Detection Platform</p>
+    </div>
+
+    <!-- Auth Card -->
+    <div class="glass rounded-2xl p-8">
+      <!-- Tabs -->
+      <div class="flex bg-white/5 rounded-xl p-1 mb-6 gap-1">
+        <button id="tab-login" class="tab-btn active flex-1 py-2 rounded-lg text-sm font-semibold" onclick="switchTab('login')">Sign In</button>
+        <button id="tab-register" class="tab-btn flex-1 py-2 rounded-lg text-sm font-semibold" onclick="switchTab('register')">Create Account</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="form-login" onsubmit="handleLogin(event)">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-xs font-medium text-white/60 mb-1.5">Email Address</label>
+            <input id="login-email" type="email" placeholder="you@example.com" required
+              class="input-field w-full rounded-xl px-4 py-3 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-white/60 mb-1.5">Password</label>
+            <input id="login-password" type="password" placeholder="••••••••" required
+              class="input-field w-full rounded-xl px-4 py-3 text-sm" />
+          </div>
+          <button type="submit" id="btn-login"
+            class="btn-primary w-full py-3 rounded-xl font-semibold text-sm mt-2 flex items-center justify-center gap-2">
+            Sign In
+          </button>
+        </div>
+        <p class="text-center text-white/40 text-xs mt-4">Don't have an account? <button type="button" onclick="switchTab('register')" class="text-brand-400 hover:text-brand-300">Create one →</button></p>
+      </form>
+
+      <!-- Register Form -->
+      <form id="form-register" class="hidden" onsubmit="handleRegister(event)">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-xs font-medium text-white/60 mb-1.5">Full Name</label>
+            <input id="reg-name" type="text" placeholder="Your full name" required minlength="2"
+              class="input-field w-full rounded-xl px-4 py-3 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-white/60 mb-1.5">Email Address</label>
+            <input id="reg-email" type="email" placeholder="you@example.com" required
+              class="input-field w-full rounded-xl px-4 py-3 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-white/60 mb-1.5">Password <span class="text-white/30">(min 6 chars)</span></label>
+            <input id="reg-password" type="password" placeholder="••••••••" required minlength="6"
+              class="input-field w-full rounded-xl px-4 py-3 text-sm" />
+          </div>
+          <button type="submit" id="btn-register"
+            class="btn-primary w-full py-3 rounded-xl font-semibold text-sm mt-2 flex items-center justify-center gap-2">
+            Create Account
+          </button>
+        </div>
+        <p class="text-center text-white/40 text-xs mt-4">Already have an account? <button type="button" onclick="switchTab('login')" class="text-brand-400 hover:text-brand-300">Sign in →</button></p>
+      </form>
+    </div>
+
+    <p class="text-center text-white/20 text-xs mt-6">
+      For screening purposes only. Not a clinical diagnosis.
+    </p>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast glass rounded-xl px-5 py-3.5 flex items-center gap-3 min-w-[280px]">
+  <div id="toast-icon" class="w-5 h-5 flex-shrink-0"></div>
+  <span id="toast-msg" class="text-sm font-medium"></span>
+</div>
+
+<script>
+  // Use relative path since frontend and backend are on the same domain
+  const API = '';
+
+  // Redirect if already logged in
+  if (localStorage.getItem('token')) {
+    window.location.href = '/dashboard';
+  }
+
+  function switchTab(tab) {
+    const isLogin = tab === 'login';
+    document.getElementById('form-login').classList.toggle('hidden', !isLogin);
+    document.getElementById('form-register').classList.toggle('hidden', isLogin);
+    document.getElementById('tab-login').classList.toggle('active', isLogin);
+    document.getElementById('tab-register').classList.toggle('active', !isLogin);
+  }
+
+  function showToast(msg, type = 'error') {
+    const toast = document.getElementById('toast');
+    const icon  = document.getElementById('toast-icon');
+    document.getElementById('toast-msg').textContent = msg;
+    icon.innerHTML = type === 'success'
+      ? `<svg class="text-emerald-400 w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>`
+      : `<svg class="text-red-400 w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3500);
+  }
+
+  function setLoading(btnId, loading) {
+    const btn = document.getElementById(btnId);
+    btn.disabled = loading;
+    btn.innerHTML = loading
+      ? `<svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg> Please wait…`
+      : (btnId === 'btn-login' ? 'Sign In' : 'Create Account');
+  }
+
+  async function handleLogin(e) {
+    e.preventDefault();
+    setLoading('btn-login', true);
+    try {
+      const res = await fetch(`${API}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: document.getElementById('login-email').value,
+          password: document.getElementById('login-password').value,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'Login failed');
+      localStorage.setItem('token', data.access_token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      showToast('Welcome back! Redirecting…', 'success');
+      setTimeout(() => window.location.href = '/dashboard', 800);
+    } catch (err) {
+      showToast(err.message);
+    } finally {
+      setLoading('btn-login', false);
+    }
+  }
+
+  async function handleRegister(e) {
+    e.preventDefault();
+    setLoading('btn-register', true);
+    try {
+      const res = await fetch(`${API}/api/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          full_name: document.getElementById('reg-name').value,
+          email: document.getElementById('reg-email').value,
+          password: document.getElementById('reg-password').value,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'Registration failed');
+      localStorage.setItem('token', data.access_token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      showToast('Account created! Redirecting…', 'success');
+      setTimeout(() => window.location.href = '/dashboard', 800);
+    } catch (err) {
+      showToast(err.message);
+    } finally {
+      setLoading('btn-register', false);
+    }
+  }
+</script>
+</body>
+</html>

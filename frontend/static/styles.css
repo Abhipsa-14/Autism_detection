@@ -1,0 +1,103 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    padding: 20px;
+}
+
+.container {
+    max-width: 700px;
+    margin: auto;
+}
+
+.card {
+    background: white;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #777;
+}
+
+.section {
+    margin-bottom: 25px;
+}
+
+.section h2 {
+    margin-bottom: 15px;
+    color: #444;
+}
+
+.input-group {
+    margin-bottom: 15px;
+}
+
+label {
+    font-weight: 500;
+    display: block;
+    margin-bottom: 5px;
+}
+
+input, select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+.question {
+    margin-bottom: 18px;
+    padding: 12px;
+    border-radius: 10px;
+    background: #f7f7f7;
+}
+
+.question p {
+    margin-bottom: 8px;
+}
+
+.options label {
+    margin-right: 15px;
+    cursor: pointer;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #5a67d8;
+}
+
+button:disabled {
+    background: gray;
+}
+
+#message {
+    margin-top: 15px;
+    text-align: center;
+}
+
+.success { color: green; }
+.error { color: red; }

@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — AutismScreen AI</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: {
+            brand: { 400: '#5a8dff', 500: '#3366ff', 600: '#1a44f5' },
+          },
+          animation: {
+            'fade-up': 'fadeUp 0.5s ease-out both',
+            'scale-in': 'scaleIn 0.4s ease-out both',
+          },
+          keyframes: {
+            fadeUp:  { '0%': { opacity: 0, transform: 'translateY(20px)' }, '100%': { opacity: 1, transform: 'translateY(0)' } },
+            scaleIn: { '0%': { opacity: 0, transform: 'scale(0.92)' }, '100%': { opacity: 1, transform: 'scale(1)' } },
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .glass    { background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); }
+    .glass-sm { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); }
+    .input-field { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); color: white; transition: all 0.2s; }
+    .input-field:focus { outline: none; border-color: #5a8dff; background: rgba(255,255,255,0.1); box-shadow: 0 0 0 3px rgba(90,141,255,0.2); }
+    .input-field::placeholder { color: rgba(255,255,255,0.3); }
+    select.input-field option { background: #1a1a2e; color: white; }
+    .btn-primary { background: linear-gradient(135deg, #3366ff, #1a44f5); transition: all 0.2s; }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 25px rgba(51,102,255,0.4); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .aq-card { transition: all 0.15s; }
+    .radio-option { transition: all 0.15s; cursor: pointer; }
+    .radio-option input[type="radio"]:checked + span { border-color: #3366ff; background: rgba(51,102,255,0.2); color: white; }
+    .radio-option span { border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 8px 16px; display: block; font-size: 13px; color: rgba(255,255,255,0.6); transition: all 0.15s; }
+    .radio-option:hover span { border-color: rgba(255,255,255,0.3); color: white; }
+    .progress-bar { height: 4px; background: rgba(255,255,255,0.1); border-radius: 99px; }
+    .progress-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, #3366ff, #818cf8); transition: width 0.4s ease; }
+    .risk-low      { background: linear-gradient(135deg, #059669, #10b981); }
+    .risk-moderate { background: linear-gradient(135deg, #d97706, #f59e0b); }
+    .risk-high     { background: linear-gradient(135deg, #dc2626, #ef4444); }
+    .section { display: none; }
+    .section.active { display: block; }
+    .toast { position: fixed; bottom: 24px; right: 24px; z-index: 9999; transform: translateY(80px); opacity: 0; transition: all 0.35s ease; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .orb { position: fixed; border-radius: 50%; filter: blur(100px); pointer-events: none; }
+    /* Gauge */
+    .gauge-ring { transform-origin: center; transition: stroke-dashoffset 1s ease-out; }
+    /* Nav pill active */
+    .nav-btn.active { background: rgba(51,102,255,0.2); color: #5a8dff; border-color: rgba(51,102,255,0.3); }
+    .nav-btn { border: 1px solid transparent; transition: all 0.2s; }
+  </style>
+</head>
+<body class="h-full bg-gray-950 text-white min-h-screen">
+
+<!-- Ambient -->
+<div class="pointer-events-none">
+  <div class="orb w-[500px] h-[500px] bg-brand-600/15 top-[-150px] left-[-100px]"></div>
+  <div class="orb w-[350px] h-[350px] bg-purple-700/10 bottom-0 right-[-80px]"></div>
+</div>
+
+<!-- ── Layout ───────────────────────────────────────────────── -->
+<div class="relative flex h-screen overflow-hidden">
+
+  <!-- Sidebar -->
+  <aside class="w-64 flex-shrink-0 glass border-r border-white/8 flex flex-col p-5 gap-3">
+    <!-- Brand -->
+    <div class="flex items-center gap-3 mb-4">
+      <div class="w-9 h-9 rounded-xl bg-brand-600 flex items-center justify-center shadow-lg shadow-brand-600/30 flex-shrink-0">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+        </svg>
+      </div>
+      <div>
+        <p class="font-bold text-sm leading-none">AutismScreen AI</p>
+        <p class="text-[10px] text-white/40 mt-0.5">AQ-10 Platform</p>
+      </div>
+    </div>
+
+    <!-- User pill -->
+    <div id="user-pill" class="glass-sm rounded-xl p-3 mb-2">
+      <p id="sidebar-name" class="text-sm font-semibold truncate">Loading…</p>
+      <p id="sidebar-email" class="text-xs text-white/40 truncate"></p>
+    </div>
+
+    <!-- Nav -->
+    <nav class="flex flex-col gap-1.5 flex-1">
+      <button onclick="showSection('screen')" id="nav-screen"
+        class="nav-btn active flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-left">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        New Screening
+      </button>
+      <button onclick="showSection('history')" id="nav-history"
+        class="nav-btn flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-left text-white/60">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        History
+      </button>
+    </nav>
+
+    <!-- Logout -->
+    <button onclick="logout()"
+      class="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-white/40 hover:text-red-400 hover:bg-red-400/10 transition-all">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+      Sign Out
+    </button>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 overflow-y-auto px-8 py-8">
+
+    <!-- ── SCREENING SECTION ──────────────────────────────── -->
+    <div id="section-screen" class="section active animate-fade-up">
+      <div class="max-w-2xl mx-auto">
+        <h2 class="text-2xl font-bold mb-1">New Screening</h2>
+        <p class="text-white/50 text-sm mb-8">Complete the AQ-10 questionnaire for an instant assessment</p>
+
+        <!-- Step indicator -->
+        <div class="flex items-center gap-3 mb-8">
+          <div id="step1-dot" class="w-8 h-8 rounded-full bg-brand-600 flex items-center justify-center text-xs font-bold flex-shrink-0">1</div>
+          <div class="progress-bar flex-1"><div id="progress-fill" class="progress-fill" style="width:0%"></div></div>
+          <div id="step2-dot" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold flex-shrink-0 text-white/40">2</div>
+        </div>
+
+        <!-- Step 1: Personal Info -->
+        <div id="step-1">
+          <div class="glass rounded-2xl p-6 mb-5">
+            <h3 class="font-semibold text-base mb-4 flex items-center gap-2">
+              <span class="w-6 h-6 rounded-full bg-brand-600/30 text-brand-400 text-xs flex items-center justify-center font-bold">1</span>
+              Personal Information
+            </h3>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="col-span-2 sm:col-span-1">
+                <label class="block text-xs text-white/50 mb-1.5">Age <span class="text-red-400">*</span></label>
+                <input id="age" type="number" min="1" max="120" placeholder="e.g. 25" required
+                  class="input-field w-full rounded-xl px-4 py-2.5 text-sm" />
+              </div>
+              <div class="col-span-2 sm:col-span-1">
+                <label class="block text-xs text-white/50 mb-1.5">Gender <span class="text-red-400">*</span></label>
+                <select id="gender" required class="input-field w-full rounded-xl px-4 py-2.5 text-sm">
+                  <option value="">Select…</option>
+                  <option value="m">Male</option>
+                  <option value="f">Female</option>
+                </select>
+              </div>
+              <div class="col-span-2 sm:col-span-1">
+                <label class="block text-xs text-white/50 mb-1.5">History of Jaundice at Birth <span class="text-red-400">*</span></label>
+                <select id="jaundice" required class="input-field w-full rounded-xl px-4 py-2.5 text-sm">
+                  <option value="">Select…</option>
+                  <option value="true">Yes</option>
+                  <option value="false">No</option>
+                </select>
+              </div>
+              <div class="col-span-2 sm:col-span-1">
+                <label class="block text-xs text-white/50 mb-1.5">Family Member with Autism <span class="text-red-400">*</span></label>
+                <select id="family_autism" required class="input-field w-full rounded-xl px-4 py-2.5 text-sm">
+                  <option value="">Select…</option>
+                  <option value="true">Yes</option>
+                  <option value="false">No</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <button onclick="goToStep2()" class="btn-primary w-full py-3 rounded-xl font-semibold text-sm">
+            Continue to Questionnaire →
+          </button>
+        </div>
+
+        <!-- Step 2: Questionnaire -->
+        <div id="step-2" class="hidden">
+          <div class="glass rounded-2xl p-6 mb-5">
+            <h3 class="font-semibold text-base mb-1 flex items-center gap-2">
+              <span class="w-6 h-6 rounded-full bg-brand-600/30 text-brand-400 text-xs flex items-center justify-center font-bold">2</span>
+              AQ-10 Questionnaire
+            </h3>
+            <p class="text-xs text-white/40 mb-5 ml-8">Select <strong class="text-white/60">Yes</strong> or <strong class="text-white/60">No</strong> for each statement as it applies to you</p>
+            <div id="questions-container" class="space-y-4"></div>
+          </div>
+
+          <div class="flex gap-3">
+            <button onclick="goToStep1()" class="flex-1 py-3 rounded-xl font-semibold text-sm glass-sm hover:bg-white/10 transition-all">
+              ← Back
+            </button>
+            <button onclick="submitScreening()" id="btn-submit"
+              class="btn-primary flex-2 py-3 px-8 rounded-xl font-semibold text-sm flex items-center justify-center gap-2">
+              Get My Results
+            </button>
+          </div>
+        </div>
+
+        <!-- Result Card -->
+        <div id="result-card" class="hidden animate-scale-in mt-6">
+          <div id="result-inner" class="rounded-2xl p-8 text-center">
+            <!-- Gauge -->
+            <div class="flex justify-center mb-6">
+              <svg class="w-36 h-36" viewBox="0 0 120 120">
+                <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="10" />
+                <circle id="gauge-arc" cx="60" cy="60" r="50" fill="none" stroke="white" stroke-width="10"
+                  stroke-linecap="round" stroke-dasharray="314" stroke-dashoffset="314"
+                  transform="rotate(-90 60 60)" class="gauge-ring" />
+                <text x="60" y="55" text-anchor="middle" fill="white" font-size="18" font-weight="700" id="gauge-pct">0%</text>
+                <text x="60" y="70" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="8">confidence</text>
+              </svg>
+            </div>
+            <div id="risk-badge" class="inline-block px-5 py-1.5 rounded-full text-sm font-bold mb-3">Low Risk</div>
+            <h3 id="result-title" class="text-2xl font-bold mb-2">Result Title</h3>
+            <p id="result-description" class="text-white/60 text-sm max-w-sm mx-auto mb-6"></p>
+            <div class="grid grid-cols-3 gap-3 mb-6">
+              <div class="glass-sm rounded-xl p-3">
+                <p class="text-2xl font-bold" id="res-aq">—</p>
+                <p class="text-xs text-white/40 mt-0.5">AQ Score</p>
+              </div>
+              <div class="glass-sm rounded-xl p-3">
+                <p class="text-2xl font-bold" id="res-conf">—</p>
+                <p class="text-xs text-white/40 mt-0.5">Confidence</p>
+              </div>
+              <div class="glass-sm rounded-xl p-3">
+                <p class="text-2xl font-bold" id="res-pred">—</p>
+                <p class="text-xs text-white/40 mt-0.5">Prediction</p>
+              </div>
+            </div>
+            <p class="text-white/30 text-xs">This is a screening tool, not a clinical diagnosis. Please consult a healthcare professional for confirmation.</p>
+            <button onclick="resetForm()" class="mt-5 glass-sm rounded-xl px-5 py-2.5 text-sm font-medium hover:bg-white/10 transition-all">
+              Take Another Screening →
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── HISTORY SECTION ────────────────────────────────── -->
+    <div id="section-history" class="section animate-fade-up">
+      <div class="max-w-3xl mx-auto">
+        <h2 class="text-2xl font-bold mb-1">Screening History</h2>
+        <p class="text-white/50 text-sm mb-8">All your past AQ-10 assessments</p>
+        <div id="history-container">
+          <div class="text-center py-16 text-white/30">
+            <svg class="w-12 h-12 mx-auto mb-3 opacity-40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <p class="text-sm">Loading history…</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast glass rounded-xl px-5 py-3.5 flex items-center gap-3 min-w-[280px]">
+  <div id="toast-icon"></div>
+  <span id="toast-msg" class="text-sm font-medium"></span>
+</div>
+
+<script>
+// Use relative path since frontend and backend are on the same domain
+const API = '';
+
+const AQ_QUESTIONS = [
+  "I often notice small sounds when others do not.",
+  "I usually concentrate more on the whole picture, rather than the small details.",
+  "I find it easy to do more than one thing at once.",
+  "If there is an interruption, I can switch back to what I was doing very quickly.",
+  "I find it easy to 'read between the lines' when someone is talking to me.",
+  "I know how to tell if someone listening to me is getting bored.",
+  "When I'm reading a story, I find it difficult to work out the characters' intentions.",
+  "I like to collect information about categories of things (e.g. types of cars, birds, trains).",
+  "I find it easy to work out what someone is thinking or feeling just by looking at their face.",
+  "I find it difficult to work out people's intentions.",
+];
+
+// ── Auth guard ───────────────────────────────────────────────
+const token = localStorage.getItem('token');
+if (!token) window.location.href = '/';
+
+const user = JSON.parse(localStorage.getItem('user') || '{}');
+document.getElementById('sidebar-name').textContent  = user.full_name || 'User';
+document.getElementById('sidebar-email').textContent = user.email    || '';
+
+// ── Render questions ─────────────────────────────────────────
+const qContainer = document.getElementById('questions-container');
+AQ_QUESTIONS.forEach((q, i) => {
+  qContainer.innerHTML += `
+    <div class="aq-card glass-sm rounded-xl p-4">
+      <p class="text-sm text-white/80 mb-3"><span class="text-brand-400 font-semibold mr-1">${i+1}.</span>${q}</p>
+      <div class="flex gap-3">
+        <label class="radio-option flex-1">
+          <input type="radio" name="q${i}" value="1" class="hidden" />
+          <span class="text-center">Yes</span>
+        </label>
+        <label class="radio-option flex-1">
+          <input type="radio" name="q${i}" value="0" class="hidden" />
+          <span class="text-center">No</span>
+        </label>
+      </div>
+    </div>`;
+});
+
+// ── Navigation ───────────────────────────────────────────────
+function showSection(name) {
+  ['screen','history'].forEach(s => {
+    document.getElementById(`section-${s}`).classList.toggle('active', s===name);
+    document.getElementById(`nav-${s}`).classList.toggle('active', s===name);
+    document.getElementById(`nav-${s}`).classList.toggle('text-white/60', s!==name);
+  });
+  if (name === 'history') loadHistory();
+}
+
+// ── Steps ────────────────────────────────────────────────────
+function goToStep2() {
+  const age = document.getElementById('age').value;
+  const gender = document.getElementById('gender').value;
+  const jaundice = document.getElementById('jaundice').value;
+  const family = document.getElementById('family_autism').value;
+  if (!age || !gender || !jaundice || !family) { showToast('Please fill all fields before continuing.'); return; }
+  document.getElementById('step-1').classList.add('hidden');
+  document.getElementById('step-2').classList.remove('hidden');
+  document.getElementById('result-card').classList.add('hidden');
+  document.getElementById('progress-fill').style.width = '50%';
+  document.getElementById('step2-dot').classList.remove('bg-white/10','text-white/40');
+  document.getElementById('step2-dot').classList.add('bg-brand-600','text-white');
+}
+
+function goToStep1() {
+  document.getElementById('step-1').classList.remove('hidden');
+  document.getElementById('step-2').classList.add('hidden');
+  document.getElementById('progress-fill').style.width = '0%';
+  document.getElementById('step2-dot').classList.add('bg-white/10','text-white/40');
+  document.getElementById('step2-dot').classList.remove('bg-brand-600','text-white');
+}
+
+// ── Submit ───────────────────────────────────────────────────
+async function submitScreening() {
+  const answers = [];
+  for (let i = 0; i < 10; i++) {
+    const sel = document.querySelector(`input[name="q${i}"]:checked`);
+    if (!sel) { showToast(`Please answer question ${i+1}`); return; }
+    answers.push(parseInt(sel.value));
+  }
+  const payload = {
+    a1:answers[0], a2:answers[1], a3:answers[2], a4:answers[3], a5:answers[4],
+    a6:answers[5], a7:answers[6], a8:answers[7], a9:answers[8], a10:answers[9],
+    age: parseFloat(document.getElementById('age').value),
+    gender: document.getElementById('gender').value,
+    jaundice: document.getElementById('jaundice').value === 'true',
+    family_autism: document.getElementById('family_autism').value === 'true',
+  };
+  const btn = document.getElementById('btn-submit');
+  btn.disabled = true;
+  btn.innerHTML = `<svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg> Analysing…`;
+  try {
+    const res = await fetch(`${API}/api/predict`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Prediction failed');
+    showResult(data);
+  } catch(e) {
+    showToast(e.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'Get My Results';
+  }
+}
+
+function showResult(data) {
+  document.getElementById('step-2').classList.add('hidden');
+  document.getElementById('progress-fill').style.width = '100%';
+  const card = document.getElementById('result-card');
+  card.classList.remove('hidden');
+
+  const pct  = Math.round(data.confidence * 100);
+  const risk = data.risk_level;
+  const inner = document.getElementById('result-inner');
+
+  // Color theme
+  const theme = risk === 'High Risk' ? 'risk-high' : risk === 'Moderate Risk' ? 'risk-moderate' : 'risk-low';
+  inner.className = `rounded-2xl p-8 text-center ${theme}`;
+
+  // Gauge animation
+  const arc = document.getElementById('gauge-arc');
+  const circ = 314;
+  setTimeout(() => { arc.style.strokeDashoffset = circ - (circ * data.confidence); }, 100);
+  document.getElementById('gauge-pct').textContent = `${pct}%`;
+
+  // Badge & text
+  document.getElementById('risk-badge').textContent = risk;
+  document.getElementById('result-title').textContent = data.prediction === 1 ? 'Autism Traits Detected' : 'Low Autism Indicators';
+  document.getElementById('result-description').textContent = data.prediction === 1
+    ? 'Your responses suggest characteristics associated with autism. We strongly recommend a formal evaluation by a qualified clinician.'
+    : 'Your responses suggest few autism-related characteristics at this time. Continue monitoring and consult a professional if concerns arise.';
+
+  document.getElementById('res-aq').textContent   = `${data.aq_score}/10`;
+  document.getElementById('res-conf').textContent = `${pct}%`;
+  document.getElementById('res-pred').textContent = data.prediction === 1 ? 'Positive' : 'Negative';
+
+  card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function resetForm() {
+  document.getElementById('result-card').classList.add('hidden');
+  document.getElementById('step-1').classList.remove('hidden');
+  document.getElementById('step-2').classList.add('hidden');
+  document.getElementById('progress-fill').style.width = '0%';
+  // Reset radios
+  document.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+}
+
+// ── History ──────────────────────────────────────────────────
+async function loadHistory() {
+  const container = document.getElementById('history-container');
+  container.innerHTML = `<div class="text-center py-16 text-white/30 text-sm">Loading…</div>`;
+  try {
+    const res = await fetch(`${API}/api/history`, {
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail);
+    if (data.total === 0) {
+      container.innerHTML = `<div class="text-center py-16 text-white/30">
+        <svg class="w-12 h-12 mx-auto mb-3 opacity-40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        <p class="text-sm">No screenings yet. Take your first one!</p>
+      </div>`;
+      return;
+    }
+    container.innerHTML = data.results.map(r => {
+      const pct     = Math.round(r.confidence * 100);
+      const riskCls = r.risk_level === 'High Risk' ? 'text-red-400' : r.risk_level === 'Moderate Risk' ? 'text-amber-400' : 'text-emerald-400';
+      const date    = new Date(r.created_at).toLocaleDateString('en-GB', { day:'numeric',month:'short',year:'numeric', hour:'2-digit', minute:'2-digit' });
+      return `
+        <div class="glass-sm rounded-xl p-5 mb-3 flex items-center justify-between gap-4">
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-3 mb-1">
+              <span class="${riskCls} text-xs font-bold uppercase tracking-wide">${r.risk_level}</span>
+              <span class="text-white/20 text-xs">·</span>
+              <span class="text-white/40 text-xs">${date}</span>
+            </div>
+            <p class="text-sm font-medium">${r.prediction === 1 ? 'Autism Traits Detected' : 'Low Autism Indicators'}</p>
+            <p class="text-xs text-white/40 mt-0.5">AQ Score: ${r.aq_score}/10 · Age: ${r.age} · ${r.gender === 'm' ? 'Male' : 'Female'}</p>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <p class="text-2xl font-bold">${pct}%</p>
+            <p class="text-xs text-white/40">confidence</p>
+          </div>
+        </div>`;
+    }).join('');
+  } catch(e) {
+    container.innerHTML = `<div class="text-center py-16 text-red-400/60 text-sm">${e.message}</div>`;
+  }
+}
+
+// ── Utils ────────────────────────────────────────────────────
+function logout() {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  window.location.href = '/';
+}
+
+function showToast(msg, type='error') {
+  const toast = document.getElementById('toast');
+  const icon  = document.getElementById('toast-icon');
+  document.getElementById('toast-msg').textContent = msg;
+  icon.innerHTML = type === 'success'
+    ? `<svg class="text-emerald-400 w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>`
+    : `<svg class="text-red-400 w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3500);
+}
+</script>
+</body>
+</html>
