@@ -469,65 +469,132 @@ async function loadModelInfo() {
     } catch(e) { modelInfo = {}; }
   }
   const m = modelInfo.metrics || {};
-  const fmtPct = function(x){ return x!=null ? Math.round(x*100)+'%' : '-'; };
-  const metricCards = [
-    ['Sensitivity', fmtPct(m.sensitivity_recall), 'Correctly flags true cases'],
-    ['Specificity', fmtPct(m.specificity), 'Correctly clears non-cases'],
-    ['Precision', fmtPct(m.precision), 'Of those flagged, share correct'],
-    ['ROC-AUC', m.roc_auc!=null?m.roc_auc.toFixed(3):'-', 'Overall ranking quality'],
-  ];
+  const fmt = function(x){ return x!=null ? Math.round(x*100)+'%' : '-'; };
+
   const steps = [
-    ['Answer the AQ-10', 'You respond to ten short statements about attention, communication, and social preference, plus a few background details.'],
-    ['The model reviews your pattern', 'A calibrated gradient-boosted model, trained on 1,100 screening records across children, adolescents, and adults, scores your responses.'],
-    ['You get an explained result', 'The result shows a calibrated confidence and the specific answers that influenced it the most.'],
-    ['Take it further', 'Download a PDF summary and share it with a qualified clinician for a formal assessment.'],
+    {
+      n: '01', title: 'Fill in your details',
+      body: 'Age, gender, and two clinical background questions. These help the model contextualise your answers they are not shared with anyone.'
+    },
+    {
+      n: '02', title: 'Answer the AQ-10',
+      body: 'Ten statements about attention, communication, and social preference. Agree or disagree with each. No right or wrong answers  just honest responses.'
+    },
+    {
+      n: '03', title: 'Get an explained result',
+      body: 'A calibrated XGBoost model scores your pattern and returns a risk level, a confidence percentage, and the specific answers that drove the result up or down.'
+    },
+    {
+      n: '04', title: 'Take it to a clinician',
+      body: 'Download a one-page PDF summary. Bring it to your GP, psychologist, or paediatrician as a starting point for a formal assessment.'
+    },
   ];
+
+  const metrics = [
+    { label: 'Sensitivity', value: fmt(m.sensitivity_recall), note: 'True cases correctly flagged' },
+    { label: 'Specificity', value: fmt(m.specificity),        note: 'Non-cases correctly cleared' },
+    { label: 'Precision',   value: fmt(m.precision),          note: 'Flagged cases that are correct' },
+    { label: 'ROC-AUC',     value: m.roc_auc!=null ? m.roc_auc.toFixed(3) : '-', note: 'Overall discrimination quality' },
+  ];
+
   v.innerHTML =
-    '<div class="mb-7"><h2 class="font-display text-2xl text-ink-900">How AQSense works</h2>' +
-    '<p class="text-ink-500 text-sm mt-1">Transparent by design. Here\'s exactly what happens behind a screening.</p></div>' +
-    '<div class="bg-white rounded-2xl border border-line shadow-card p-6 sm:p-7 mb-5"><ol class="space-y-5">' +
-      steps.map(function(s,i){ return '<li class="flex gap-4">' +
-        '<span class="flex-shrink-0 w-7 h-7 rounded-full bg-teal-50 text-teal-700 text-sm font-semibold flex items-center justify-center ring-1 ring-teal-100">' + (i+1) + '</span>' +
-        '<div><p class="text-sm font-semibold text-ink-900">' + s[0] + '</p>' +
-        '<p class="text-sm text-ink-500 mt-0.5">' + s[1] + '</p></div></li>'; }).join('') +
-    '</ol></div>' +
-    '<div class="mb-3 flex items-center justify-between"><h3 class="text-sm font-semibold text-ink-900">Measured performance</h3>' +
-      '<span class="text-xs text-ink-400">held-out test set · ' + (modelInfo.n_samples||'-') + ' records</span></div>' +
-    '<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-2">' +
-      metricCards.map(function(c){ return '<div class="bg-white rounded-xl border border-line shadow-card p-4">' +
-        '<p class="text-2xl font-semibold text-ink-900">' + c[1] + '</p>' +
-        '<p class="text-xs font-medium text-ink-700 mt-1">' + c[0] + '</p>' +
-        '<p class="text-[11px] text-ink-400 mt-0.5 leading-snug">' + c[2] + '</p></div>'; }).join('') +
+    '<div class="mb-8">' +
+      '<h2 class="font-display text-2xl text-ink-900">How AQSense works</h2>' +
+      '<p class="text-ink-500 text-sm mt-1.5">Four steps from first question to clinician-ready report.</p>' +
     '</div>' +
-    '<p class="text-xs text-ink-400 px-1 mb-6">Model: ' + (modelInfo.model_type||'-') + ' · Source: ' + (modelInfo.data_source||'-') + '. Metrics are recomputed on each training run.</p>' +
-    '<div class="bg-teal-50/60 rounded-2xl border border-teal-100 p-6">' +
-      '<h3 class="text-sm font-semibold text-teal-800 mb-1">Why we show the "why"</h3>' +
-      '<p class="text-sm text-teal-900/70 leading-relaxed">A confidence number on its own isn\'t trustworthy. Every AQSense result lists the individual answers that moved the estimate up or down, so you and your clinician can see the reasoning rather than taking a black box at its word.</p></div>';
+
+    // Steps — clean numbered layout, no icon boxes
+    '<div class="bg-white rounded-2xl border border-line shadow-card divide-y divide-line mb-6">' +
+      steps.map(function(s) {
+        return '<div class="flex gap-5 px-6 py-5">' +
+          '<span class="flex-shrink-0 font-display text-3xl font-semibold text-teal-600/30 leading-none w-8 pt-0.5">' + s.n + '</span>' +
+          '<div>' +
+            '<p class="text-sm font-semibold text-ink-900 mb-1">' + s.title + '</p>' +
+            '<p class="text-sm text-ink-700 leading-relaxed">' + s.body + '</p>' +
+          '</div>' +
+        '</div>';
+      }).join('') +
+    '</div>' +
+
+    // Performance metrics
+    '<div class="flex items-baseline justify-between mb-3">' +
+      '<p class="text-sm font-semibold text-ink-900">Model performance</p>' +
+      '<p class="text-xs text-ink-400">220-sample held-out test set · ' + (modelInfo.n_samples||'-') + ' total records</p>' +
+    '</div>' +
+    '<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-1">' +
+      metrics.map(function(c) {
+        return '<div class="bg-white rounded-xl border border-line shadow-card px-4 py-4">' +
+          '<p class="text-2xl font-semibold text-ink-900 tabular-nums">' + c.value + '</p>' +
+          '<p class="text-xs font-medium text-ink-700 mt-1.5">' + c.label + '</p>' +
+          '<p class="text-[11px] text-ink-500 mt-0.5 leading-snug">' + c.note + '</p>' +
+        '</div>';
+      }).join('') +
+    '</div>' +
+    '<p class="text-xs text-ink-400 px-0.5 mb-7">' +
+      (modelInfo.model_type||'XGBoost') + ' · sigmoid-calibrated · ' + (modelInfo.data_source||'merged cohort') +
+    '</p>' +
+
+    // Why explainability
+    '<div class="rounded-2xl border border-teal-100 bg-teal-50/60 px-6 py-5">' +
+      '<p class="text-sm font-semibold text-teal-800 mb-2">Why every result shows its reasoning</p>' +
+      '<p class="text-sm text-ink-700 leading-relaxed">' +
+        'A single confidence number is easy to misread. AQSense shows the five answers that moved the estimate most which ones raised it and which ones lowered it so you and your clinician can evaluate the result rather than just accept it.' +
+      '</p>' +
+    '</div>';
 }
 
 // ── LIMITATIONS VIEW ─────────────────────────────────────────
 function renderLimits() {
   const items = [
-    ['Not a diagnosis', 'AQSense is a screening aid. Only a qualified clinician can diagnose autism, through a comprehensive in-person assessment.', 'M9 12l2 2 4-4'],
-    ['The label problem', 'In the public dataset used for training, the autism label is derived from the AQ-10 score itself rather than an independent clinical diagnosis. A simple "score of 6 or more" rule already matches the label about 88% of the time, so high accuracy partly reflects the model re-learning the questionnaire\'s own scoring rule.', 'M12 9v3.75m0 3.75h.01'],
-    ['Self-report bias', 'Answers are self-reported (or given by a caregiver for children). Responses can be affected by mood, insight, and interpretation, which the model cannot detect.', 'M16 7a4 4 0 11-8 0 4 4 0 018 0z'],
-    ['Population limits', 'The training data covers specific cohorts and may not represent every age, culture, or background equally. Results may be less reliable outside those groups.', 'M3 6l3 1m0 0l-3 9a5 5 0 006 0'],
-    ['One questionnaire, one moment', 'A single AQ-10 captures one snapshot in time. Autism presentation is complex and varies across contexts and over time.', 'M12 8v4l3 3'],
+    {
+      title: 'Not a clinical diagnosis',
+      body: 'AQSense is a screening aid. A formal autism diagnosis requires a comprehensive in-person assessment by a qualified clinician, a psychologist, psychiatrist, or developmental paediatrician.'
+    },
+    {
+      title: 'The label problem',
+      body: 'In the training dataset, the autism label is derived from the AQ-10 score itself, not from an independent clinical diagnosis. A simple threshold rule already matches the label 88% of the time, so high model accuracy partly reflects re-learning the questionnaire\'s own scoring logic.'
+    },
+    {
+      title: 'Self-report bias',
+      body: 'Answers are self-reported, or given by a caregiver for children. Mood, self-awareness, and how each statement is interpreted all affect responses in ways the model cannot detect.'
+    },
+    {
+      title: 'Population coverage',
+      body: 'The training data comes from specific cohorts and may not represent every age group, culture, or background equally. Results may be less reliable for people outside those groups.'
+    },
+    {
+      title: 'A snapshot, not a full picture',
+      body: 'One AQ-10 captures one moment. Autism presentation varies across contexts and changes over time. A single screening cannot reflect that complexity.'
+    },
   ];
+
   document.getElementById('view-limits').innerHTML =
-    '<div class="mb-7"><h2 class="font-display text-2xl text-ink-900">Limitations & honesty</h2>' +
-    '<p class="text-ink-500 text-sm mt-1">What this tool can and can\'t tell you. Please read before relying on a result.</p></div>' +
-    '<div class="bg-amber-50 border border-amber-200 rounded-2xl p-5 mb-5 flex gap-3">' +
-      '<svg class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0 3.75h.01M10.34 3.94l-7.5 12.99A1.5 1.5 0 004.16 19.5h15.68a1.5 1.5 0 001.32-2.57l-7.5-12.99a1.5 1.5 0 00-2.62 0z"/></svg>' +
-      '<p class="text-sm text-amber-900/80 leading-relaxed"><span class="font-semibold text-amber-900">AQSense does not diagnose autism.</span> It is an educational screening aid. If a result concerns you, or even if it doesn\'t but you have ongoing concerns, please consult a healthcare professional.</p></div>' +
-    '<div class="space-y-3">' +
-      items.map(function(it){ return '<div class="bg-white rounded-xl border border-line shadow-card p-5 flex gap-4">' +
-        '<div class="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">' +
-          '<svg class="w-5 h-5 text-ink-500" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="' + it[2] + '"/></svg></div>' +
-        '<div><p class="text-sm font-semibold text-ink-900">' + it[0] + '</p>' +
-        '<p class="text-sm text-ink-500 mt-1 leading-relaxed">' + it[1] + '</p></div></div>'; }).join('') +
+    '<div class="mb-8">' +
+      '<h2 class="font-display text-2xl text-ink-900">Limitations</h2>' +
+      '<p class="text-ink-500 text-sm mt-1.5">Read this before acting on a result.</p>' +
     '</div>' +
-    '<p class="text-xs text-ink-400 text-center mt-8">If you are in crisis or need urgent help, contact your local emergency services.</p>';
+
+    // Warning banner
+    '<div class="flex gap-3 bg-amber-50 border border-amber-200 rounded-2xl px-5 py-4 mb-7">' +
+      '<svg class="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0 3.75h.01M10.34 3.94l-7.5 12.99A1.5 1.5 0 004.16 19.5h15.68a1.5 1.5 0 001.32-2.57l-7.5-12.99a1.5 1.5 0 00-2.62 0z"/></svg>' +
+      '<p class="text-sm text-amber-900 leading-relaxed">' +
+        '<strong>AQSense does not diagnose autism.</strong> If a result concerns you  or if it doesn\'t but you have ongoing concerns speak with a healthcare professional.' +
+      '</p>' +
+    '</div>' +
+
+    // Numbered list — clean, no icon boxes
+    '<div class="bg-white rounded-2xl border border-line shadow-card divide-y divide-line">' +
+      items.map(function(it, i) {
+        return '<div class="flex gap-5 px-6 py-5">' +
+          '<span class="flex-shrink-0 w-6 h-6 rounded-full bg-slate-100 text-ink-500 text-xs font-semibold flex items-center justify-center mt-0.5">' + (i+1) + '</span>' +
+          '<div>' +
+            '<p class="text-sm font-semibold text-ink-900 mb-1">' + it.title + '</p>' +
+            '<p class="text-sm text-ink-700 leading-relaxed">' + it.body + '</p>' +
+          '</div>' +
+        '</div>';
+      }).join('') +
+    '</div>' +
+    '<p class="text-xs text-ink-400 text-center mt-7">In a crisis or need urgent support? Contact your local emergency services or a mental health helpline.</p>';
 }
 
 // ── init ─────────────────────────────────────────────────────

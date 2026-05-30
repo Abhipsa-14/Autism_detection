@@ -4,34 +4,35 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script>
-    // No-flash theme init (runs before paint)
     (function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.classList.add('dark');}}catch(e){}})();
   </script>
 
-  <!-- Primary -->
+  <!-- Primary SEO -->
   <title>AQSense</title>
   <meta name="description" content="AQSense is a free, private AQ-10 autism screening assistant. Answer 10 questions, get an explainable risk summary, and download a PDF to share with your clinician." />
   <meta name="keywords" content="autism screening, AQ-10, autism spectrum, ASD screening, autism test, autism questionnaire" />
   <meta name="author" content="AQSense" />
   <meta name="robots" content="index, follow" />
 
-  <!-- Open Graph (Facebook, LinkedIn, WhatsApp) -->
+  <!-- Open Graph -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content="AQSense — AQ-10 Autism Screening Assistant" />
   <meta property="og:description" content="A free, private AQ-10 screening tool. Get an explainable risk summary and a clinician-ready PDF in under two minutes." />
   <meta property="og:site_name" content="AQSense" />
 
-  <!-- Twitter / X card -->
+  <!-- Twitter card -->
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="AQSense — AQ-10 Autism Screening Assistant" />
   <meta name="twitter:description" content="Free, private AQ-10 autism screening with explainable AI. Download a PDF for your clinician." />
 
-  <!-- Canonical (update to your real domain before deploying) -->
+  <!-- Canonical — update to your real domain before deploying -->
   <link rel="canonical" href="https://aqsense.onrender.com/" />
+
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -42,8 +43,8 @@
             display: ['Fraunces', 'Georgia', 'serif'],
           },
           colors: {
-            ink: { 900: '#0f172a', 700: '#334155', 500: '#64748b', 400: '#94a3b8' },
-            teal: { 50:'#f0fdfa',100:'#ccfbf1',500:'#14b8a6',600:'#0d9488',700:'#0f766e',800:'#115e59' },
+            ink: { 900:'#0f172a', 700:'#334155', 500:'#64748b', 400:'#94a3b8' },
+            teal: { 50:'#f0fdfa', 100:'#ccfbf1', 500:'#14b8a6', 600:'#0d9488', 700:'#0f766e', 800:'#115e59' },
             line: '#e2e8f0',
           },
           boxShadow: {
@@ -54,32 +55,30 @@
       },
     };
   </script>
+
   <style>
-    body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+    body { font-family:'Inter',sans-serif; -webkit-font-smoothing:antialiased; }
     .field { transition: border-color .15s, box-shadow .15s, background-color .15s; }
-    .field:focus { outline: none; border-color: #0d9488; box-shadow: 0 0 0 4px rgba(13,148,136,.12); }
+    .field:focus { outline:none; border-color:#0d9488; box-shadow:0 0 0 4px rgba(13,148,136,.12); }
     .btn { transition: transform .12s ease, box-shadow .2s ease, background-color .2s; }
-    .btn-primary:hover { box-shadow: 0 10px 24px -10px rgba(13,148,136,.6); }
-    .btn-primary:active { transform: translateY(1px); }
+    .btn-primary:hover { box-shadow:0 10px 24px -10px rgba(13,148,136,.6); }
+    .btn-primary:active { transform:translateY(1px); }
     .seg { transition: all .2s ease; }
-    .seg.active { background:#fff; color:#0f766e; font-weight:600; box-shadow: 0 1px 3px rgba(15,23,42,.12); }
+    .seg.active { background:#fff; color:#0f766e; font-weight:600; box-shadow:0 1px 3px rgba(15,23,42,.12); }
     .seg:not(.active) { color:#64748b; }
-    /* hide number input spinners — users type the age */
+    .toast { position:fixed; top:20px; left:50%; transform:translate(-50%,-140%); z-index:60; transition:transform .4s cubic-bezier(.2,.8,.2,1), opacity .4s ease; pointer-events:none; opacity:0; }
+    .toast.show { transform:translate(-50%,0); pointer-events:auto; opacity:1; }
+    .grid-bg { background-image:radial-gradient(circle at 1px 1px, rgba(15,23,42,.045) 1px, transparent 0); background-size:22px 22px; }
+    .fade-in { animation:fade .5s ease both; }
+    @keyframes fade { from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;} }
+    /* hide number spinners */
     input[type=number]::-webkit-inner-spin-button,
     input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; margin:0; }
     input[type=number] { -moz-appearance:textfield; appearance:textfield; }
-    .toast { position: fixed; top: 20px; left: 50%; transform: translate(-50%,-140%); z-index: 60; transition: transform .4s cubic-bezier(.2,.8,.2,1), opacity .4s ease; pointer-events:none; opacity:0; }
-    .toast.show { transform: translate(-50%, 0); pointer-events:auto; opacity:1; }
-    .grid-bg {
-      background-image: radial-gradient(circle at 1px 1px, rgba(15,23,42,.045) 1px, transparent 0);
-      background-size: 22px 22px;
-    }
-    .fade-in { animation: fade .5s ease both; }
-    @keyframes fade { from { opacity:0; transform: translateY(8px);} to {opacity:1; transform:none;} }
 
     /* ── Dark theme ─────────────────────────────────────────── */
     html.dark body { background:#0b1220; color:#e2e8f0; }
-    html.dark .grid-bg { background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,.05) 1px, transparent 0); }
+    html.dark .grid-bg { background-image:radial-gradient(circle at 1px 1px, rgba(255,255,255,.05) 1px, transparent 0); }
     html.dark .lg\:bg-white { background:#0b1220 !important; }
     html.dark .bg-slate-50 { background:#0b1220 !important; }
     html.dark .bg-white { background:#111a2e !important; }
@@ -92,15 +91,17 @@
     html.dark .field { background:#0f1a2e !important; border-color:#293650 !important; color:#e2e8f0; }
     html.dark .field::placeholder { color:#5b6b85; }
     html.dark .seg { color:#94a3b8; }
-    html.dark .seg.active { background:#0d9488; color:#fff; box-shadow: 0 1px 4px rgba(13,148,136,.4); }
-    html.dark .seg-track { background:#0f1a2e !important; border: 1px solid #22304a; }
+    html.dark .seg.active { background:#0d9488; color:#fff; box-shadow:0 1px 4px rgba(13,148,136,.4); }
+    html.dark .seg-track { background:#0f1a2e !important; border:1px solid #22304a; }
     html.dark .bg-ink-900 { background:#070d19 !important; }
     html.dark .theme-toggle { color:#cbd5e1; border-color:#293650; background:#111a2e; }
+    html.dark .eye-btn { color:#64748b; }
+    html.dark .eye-btn:hover { color:#94a3b8; }
   </style>
 </head>
 <body class="h-full bg-white text-ink-900">
 
-<!-- Theme toggle (floats top-right) -->
+<!-- Theme toggle -->
 <button id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode"
   class="theme-toggle fixed top-4 right-4 z-[70] w-10 h-10 rounded-full border border-line bg-white shadow-card flex items-center justify-center text-ink-500 hover:text-teal-600 transition-colors">
   <svg id="icon-sun" class="w-5 h-5 hidden" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2m0 14v2m9-9h-2M5 12H3m15.36 6.36l-1.42-1.42M6.34 6.34L4.93 4.93m12.73 0l-1.42 1.42M6.34 17.66l-1.41 1.41M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
@@ -109,26 +110,23 @@
 
 <div class="min-h-full lg:grid lg:grid-cols-2">
 
-  <!-- ── Left: brand / value column ──────────────────────────── -->
+  <!-- Left brand panel -->
   <aside class="relative hidden lg:flex flex-col justify-between bg-ink-900 text-white p-12 overflow-hidden">
-    <div class="absolute inset-0 grid-bg opacity-[0.5]"></div>
+    <div class="absolute inset-0 grid-bg opacity-50"></div>
     <div class="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-teal-600/20 blur-3xl"></div>
     <div class="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-teal-500/10 blur-3xl"></div>
 
-    <div class="relative">
-      <div class="flex items-center gap-2.5">
-        <div class="w-9 h-9 rounded-lg bg-teal-500 flex items-center justify-center">
-          <span class="text-ink-900 font-bold text-xs tracking-tight leading-none">AQ</span>
-        </div>
-        <span class="text-lg font-semibold tracking-tight">AQSense</span>
+    <div class="relative flex items-center gap-2.5">
+      <div class="w-9 h-9 rounded-lg bg-teal-500 flex items-center justify-center">
+        <span class="text-ink-900 font-bold text-xs tracking-tight leading-none">AQ</span>
       </div>
+      <span class="text-lg font-semibold tracking-tight">AQSense</span>
     </div>
 
     <div class="relative max-w-md">
       <p class="text-teal-300 text-sm font-medium tracking-wide uppercase mb-4">AQ-10 Screening Platform</p>
       <h1 class="font-display text-4xl leading-[1.15] mb-5">A clearer first step toward understanding autism traits.</h1>
       <p class="text-white/60 leading-relaxed">AQSense turns the clinically recognised AQ-10 questionnaire into an explainable risk summary you can review privately and bring to a qualified clinician.</p>
-
       <div class="mt-10 space-y-4">
         <div class="flex items-start gap-3">
           <div class="mt-0.5 w-5 h-5 rounded-full bg-teal-500/20 flex items-center justify-center flex-shrink-0"><div class="w-1.5 h-1.5 rounded-full bg-teal-400"></div></div>
@@ -151,11 +149,11 @@
     </div>
   </aside>
 
-  <!-- ── Right: auth ─────────────────────────────────────────── -->
+  <!-- Right auth panel -->
   <main class="flex items-center justify-center px-5 py-12 sm:px-10 min-h-full bg-slate-50 lg:bg-white">
     <div class="w-full max-w-sm fade-in">
 
-      <!-- mobile brand -->
+      <!-- Mobile brand -->
       <div class="flex items-center gap-2.5 mb-10 lg:hidden">
         <div class="w-9 h-9 rounded-lg bg-teal-600 flex items-center justify-center">
           <span class="text-white font-bold text-xs tracking-tight leading-none">AQ</span>
@@ -166,13 +164,13 @@
       <h2 id="auth-title" class="text-2xl font-semibold tracking-tight">Welcome back</h2>
       <p id="auth-sub" class="text-ink-500 text-sm mt-1.5 mb-8">Sign in to continue to your screening dashboard.</p>
 
-      <!-- segmented control -->
+      <!-- Tab switcher -->
       <div class="seg-track grid grid-cols-2 gap-1 p-1 bg-slate-100 rounded-xl mb-7">
-        <button id="seg-login" class="seg active py-2 rounded-lg text-sm font-medium text-ink-500" onclick="switchTab('login')">Sign in</button>
-        <button id="seg-register" class="seg py-2 rounded-lg text-sm font-medium text-ink-500" onclick="switchTab('register')">Create account</button>
+        <button id="seg-login" class="seg active py-2 rounded-lg text-sm font-medium" onclick="switchTab('login')">Sign in</button>
+        <button id="seg-register" class="seg py-2 rounded-lg text-sm font-medium" onclick="switchTab('register')">Create account</button>
       </div>
 
-      <!-- Login -->
+      <!-- Sign in form -->
       <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
         <div>
           <label class="block text-xs font-medium text-ink-700 mb-1.5">Email address</label>
@@ -181,8 +179,17 @@
         </div>
         <div>
           <label class="block text-xs font-medium text-ink-700 mb-1.5">Password</label>
-          <input id="login-password" type="password" autocomplete="current-password" placeholder="••••••••" required
-            class="field w-full rounded-lg border border-line bg-white px-3.5 py-2.5 text-sm placeholder:text-ink-400" />
+          <div class="relative">
+            <input id="login-password" type="password" autocomplete="current-password" placeholder="••••••••" required
+              class="field w-full rounded-lg border border-line bg-white px-3.5 py-2.5 pr-10 text-sm placeholder:text-ink-400" />
+            <button type="button" onclick="togglePwd('login-password','eye-login')" tabindex="-1"
+              class="eye-btn absolute inset-y-0 right-0 flex items-center px-3 text-ink-400 hover:text-ink-600 transition-colors">
+              <svg id="eye-login" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+            </button>
+          </div>
         </div>
         <button type="submit" id="btn-login"
           class="btn btn-primary w-full py-2.5 rounded-lg bg-teal-600 text-white font-semibold text-sm flex items-center justify-center gap-2">
@@ -190,7 +197,7 @@
         </button>
       </form>
 
-      <!-- Register -->
+      <!-- Create account form -->
       <form id="form-register" class="hidden space-y-4" onsubmit="handleRegister(event)">
         <div>
           <label class="block text-xs font-medium text-ink-700 mb-1.5">Full name</label>
@@ -204,8 +211,17 @@
         </div>
         <div>
           <label class="block text-xs font-medium text-ink-700 mb-1.5">Password <span class="text-ink-400 font-normal">· min 6 characters</span></label>
-          <input id="reg-password" type="password" autocomplete="new-password" placeholder="••••••••" required minlength="6"
-            class="field w-full rounded-lg border border-line bg-white px-3.5 py-2.5 text-sm placeholder:text-ink-400" />
+          <div class="relative">
+            <input id="reg-password" type="password" autocomplete="new-password" placeholder="••••••••" required minlength="6"
+              class="field w-full rounded-lg border border-line bg-white px-3.5 py-2.5 pr-10 text-sm placeholder:text-ink-400" />
+            <button type="button" onclick="togglePwd('reg-password','eye-reg')" tabindex="-1"
+              class="eye-btn absolute inset-y-0 right-0 flex items-center px-3 text-ink-400 hover:text-ink-600 transition-colors">
+              <svg id="eye-reg" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+            </button>
+          </div>
         </div>
         <button type="submit" id="btn-register"
           class="btn btn-primary w-full py-2.5 rounded-lg bg-teal-600 text-white font-semibold text-sm flex items-center justify-center gap-2">
@@ -230,7 +246,6 @@
   const API = '';
   if (localStorage.getItem('token')) window.location.href = '/dashboard';
 
-  // ── Theme ──────────────────────────────────────────────────
   function syncThemeIcon() {
     const dark = document.documentElement.classList.contains('dark');
     document.getElementById('icon-sun').classList.toggle('hidden', !dark);
@@ -242,6 +257,15 @@
     syncThemeIcon();
   }
   syncThemeIcon();
+
+  function togglePwd(inputId, iconId) {
+    const inp = document.getElementById(inputId);
+    const showing = inp.type === 'text';
+    inp.type = showing ? 'password' : 'text';
+    document.getElementById(iconId).innerHTML = showing
+      ? '<path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>'
+      : '<path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>';
+  }
 
   function switchTab(tab) {
     const login = tab === 'login';
@@ -255,14 +279,15 @@
       : 'Set up an account to run and save AQ-10 screenings.';
   }
 
-  function showToast(msg, type = 'error') {
+  function showToast(msg, type) {
+    type = type || 'error';
     const t = document.getElementById('toast');
     document.getElementById('toast-msg').textContent = msg;
     document.getElementById('toast-icon').innerHTML = type === 'success'
-      ? `<svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>`
-      : `<svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+      ? '<svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>'
+      : '<svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
     t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 3500);
+    setTimeout(function(){ t.classList.remove('show'); }, 3500);
   }
 
   function setLoading(btnId, loading, label) {
@@ -270,7 +295,7 @@
     b.disabled = loading;
     b.classList.toggle('opacity-70', loading);
     b.innerHTML = loading
-      ? `<svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg> Please wait`
+      ? '<svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg> Please wait'
       : label;
   }
 
@@ -278,8 +303,9 @@
     e.preventDefault();
     setLoading('btn-login', true);
     try {
-      const res = await fetch(`${API}/api/auth/login`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+      const res = await fetch(API + '/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: document.getElementById('login-email').value,
           password: document.getElementById('login-password').value,
@@ -290,8 +316,8 @@
       localStorage.setItem('token', data.access_token);
       localStorage.setItem('user', JSON.stringify(data.user));
       showToast('Signed in. Redirecting…', 'success');
-      setTimeout(() => window.location.href = '/dashboard', 700);
-    } catch (err) { showToast(err.message); }
+      setTimeout(function(){ window.location.href = '/dashboard'; }, 700);
+    } catch(err) { showToast(err.message); }
     finally { setLoading('btn-login', false, 'Sign in'); }
   }
 
@@ -299,8 +325,9 @@
     e.preventDefault();
     setLoading('btn-register', true);
     try {
-      const res = await fetch(`${API}/api/auth/register`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+      const res = await fetch(API + '/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           full_name: document.getElementById('reg-name').value,
           email: document.getElementById('reg-email').value,
@@ -312,8 +339,8 @@
       localStorage.setItem('token', data.access_token);
       localStorage.setItem('user', JSON.stringify(data.user));
       showToast('Account created. Redirecting…', 'success');
-      setTimeout(() => window.location.href = '/dashboard', 700);
-    } catch (err) { showToast(err.message); }
+      setTimeout(function(){ window.location.href = '/dashboard'; }, 700);
+    } catch(err) { showToast(err.message); }
     finally { setLoading('btn-register', false, 'Create account'); }
   }
 </script>
