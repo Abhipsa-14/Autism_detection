@@ -1,0 +1,27 @@
+# Core
+fastapi
+uvicorn[standard]
+python-multipart
+
+# Database (async PostgreSQL)
+asyncpg
+sqlalchemy[asyncio]
+
+# Auth
+python-jose[cryptography]
+passlib[bcrypt]
+bcrypt==3.2.0
+
+# ML
+scikit-learn
+xgboost
+imbalanced-learn
+numpy
+pandas
+shap
+matplotlib
+
+# Config
+pydantic-settings
+pydantic[email]
+python-dotenv
